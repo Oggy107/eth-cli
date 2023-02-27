@@ -1,4 +1,5 @@
 import { JsonRpcProvider, ethers } from "ethers";
+import chalk from "chalk";
 import ora, { Ora } from "ora";
 import logSymbols from "log-symbols";
 
@@ -8,7 +9,7 @@ abstract class Command {
     protected spinner: Ora = ora({ spinner: "dots5" });
 
     protected startSpinner = (name: string): void => {
-        this.spinner.text = name;
+        this.spinner.text = chalk.bold.yellow(name);
         this.spinner.start();
     };
 

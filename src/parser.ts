@@ -79,12 +79,10 @@ const parse = async () => {
             "compile solidity smart contract. outputs abi and object code in compiled directory. currently compilation of solidity files without libraries(importing other solidity files) is supported"
         )
         .action((args) => {
-            inquirer
-                .prompt([networkQuestion, compileQuestion])
-                .then((answers) => {
-                    console.log();
-                    new Compile(answers.network).compile(answers.src);
-                });
+            inquirer.prompt([compileQuestion]).then((answers) => {
+                console.log();
+                new Compile().compile(answers.src);
+            });
         });
 
     cli.command("deploy")

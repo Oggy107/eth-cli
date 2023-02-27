@@ -4,19 +4,8 @@ import logSymbols from "log-symbols";
 
 import config from "../config.js";
 
-export default abstract class Command {
-    protected provider: JsonRpcProvider;
-    protected spinner: Ora;
-
-    constructor(network: string) {
-        this.provider = new ethers.JsonRpcProvider(
-            network == config.networks.goerli.name
-                ? config.networks.goerli.rpc_url
-                : config.networks.mainnet.rpc_url
-        );
-
-        this.spinner = ora({ spinner: "dots5" });
-    }
+abstract class Command {
+    protected spinner: Ora = ora({ spinner: "dots5" });
 
     protected startSpinner = (name: string): void => {
         this.spinner.text = name;
@@ -33,4 +22,30 @@ export default abstract class Command {
         });
         console.log();
     };
+}
+
+/**
+ * nodeCommand interacts with blockchain node. use this to derive commands that need node interaction
+ */
+export abstract class nodeCommand extends Command {
+    protected provider: JsonRpcProvider;
+
+    constructor(network: string) {
+        super();
+
+        this.provider = new ethers.JsonRpcProvider(
+            network == config.networks.goerli.name
+                ? config.networks.goerli.rpc_url
+                : config.networks.mainnet.rpc_url
+        );
+    }
+}
+
+/**
+ * localCommand does not interact with blockchain node. use this to derive commands that do not need node interaction
+ */
+export abstract class localCommand extends Command {
+    constructor() {
+        super();
+    }
 }

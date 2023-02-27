@@ -1,10 +1,10 @@
 import { ethers, isError } from "ethers";
 
-import Command from "./Command.js";
+import { nodeCommand } from "./Command.js";
 import { readContent } from "../utils.js";
 import Logger from "../Logger.js";
 
-export default class Interact extends Command {
+export default class Interact extends nodeCommand {
     constructor(network: string) {
         super(network);
     }

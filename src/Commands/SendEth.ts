@@ -1,9 +1,9 @@
-import Command from "./Command.js";
+import { nodeCommand } from "./Command.js";
 import { ethers, TransactionLike } from "ethers";
 
 import Logger from "../Logger.js";
 
-export default class SendEth extends Command {
+export default class SendEth extends nodeCommand {
     constructor(network: string) {
         super(network);
     }

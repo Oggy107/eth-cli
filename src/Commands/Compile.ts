@@ -2,7 +2,8 @@ import path from "path";
 import solc from "solc";
 import fs from "fs";
 
-import Command from "./Command.js";
+import { localCommand } from "./Command.js";
+
 import { readContent, writeContent } from "../utils.js";
 import { compiledOutput } from "../types.js";
 import Logger from "../Logger.js";
@@ -26,11 +27,7 @@ class CompilationError extends Error {
     }
 }
 
-export default class Compile extends Command {
-    constructor(network: string) {
-        super(network);
-    }
-
+export default class Compile extends localCommand {
     private createOrClearDirectory = async (dirName: string): Promise<void> => {
         if (!fs.existsSync(dirName)) {
             fs.mkdirSync(dirName);

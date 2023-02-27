@@ -1,8 +1,8 @@
-import Command from "./Command.js";
+import { nodeCommand } from "./Command.js";
 
 import Logger from "../Logger.js";
 
-export default class Block extends Command {
+export default class Block extends nodeCommand {
     constructor(network: string) {
         super(network);
     }

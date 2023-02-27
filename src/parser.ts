@@ -1,4 +1,5 @@
 import { Command, Option } from "commander";
+import inquirer from "inquirer";
 
 import config from "./config.js";
 
@@ -11,20 +12,28 @@ import Deploy from "./Commands/Deploy.js";
 import Interact from "./Commands/Interact.js";
 import SendEth from "./Commands/SendEth.js";
 
+import {
+    networkQuestion,
+    blockNumberQuestion,
+    balanceQuestion,
+    transactionQuestion,
+    compileQuestion,
+    deployQuestion,
+    interactQuestion,
+    sendEthQuestion,
+} from "./questions.js";
+
 const cli = new Command("eth").version(config.version);
 
 const parse = async () => {
-    cli.addOption(
-        new Option("--network <type>", "network to use")
-            .default("goerli")
-            .choices(["goerli", "mainnet"])
-    );
-
     cli.command("balance")
         .description("get balance of address")
-        .requiredOption("--address <string>", "account or contract address")
         .action((args) => {
-            new Balance(cli.opts().network).showBalance(args.address);
+            inquirer
+                .prompt([networkQuestion, balanceQuestion])
+                .then((answers) => {
+                    new Balance(answers.network).showBalance(answers.address);
+                });
         });
 
     cli.command("blocknumber")
@@ -35,81 +44,97 @@ const parse = async () => {
 
     cli.command("block")
         .description("get block data")
-        .requiredOption("--number <block number>", "get data of block number")
         .action((args) => {
-            new Block(cli.opts().network).showBlock(parseInt(args.number));
+            inquirer
+                .prompt([networkQuestion, blockNumberQuestion])
+                .then((answers) => {
+                    new Block(answers.network).showBlock(
+                        parseInt(answers.blockNumber)
+                    );
+                });
         });
 
     cli.command("transaction")
         .description("get transaction data")
-        .requiredOption("--hash <transaction hash>", "transaction hash")
         .action((args) => {
-            new Transaction(cli.opts().network).showTransaction(args.hash);
+            inquirer
+                .prompt([networkQuestion, transactionQuestion])
+                .then((answers) => {
+                    new Transaction(answers.network).showTransaction(
+                        answers.hash
+                    );
+                });
         });
 
     cli.command("compile")
         .description(
             "compile solidity smart contract. outputs abi and object code in compiled directory. currently compilation of solidity files without libraries(importing other solidity files) is supported"
         )
-        .requiredOption(
-            "--src <path>",
-            "path to solidity smart contract source code"
-        )
         .action((args) => {
-            new Compile(cli.opts().network).compile(args.src);
+            inquirer
+                .prompt([networkQuestion, compileQuestion])
+                .then((answers) => {
+                    new Compile(answers.network).compile(answers.src);
+                });
         });
 
     cli.command("deploy")
         .description("deploy a contract")
-        .requiredOption(
-            "--bytecode <contract bytecode path>",
-            "path to contract bytecode"
-        )
-        .requiredOption("--abi <abi path>", "path to contract abi")
-        .requiredOption("--key <private key>", "private key")
         .action((args) => {
-            new Deploy(cli.opts().network).deploy(
-                args.bytecode,
-                args.abi,
-                args.key
-            );
+            inquirer
+                .prompt([
+                    networkQuestion,
+                    deployQuestion.getByecode,
+                    deployQuestion.getAbi,
+                    deployQuestion.getKey,
+                ])
+                .then((answers) => {
+                    new Deploy(answers.network).deploy(
+                        answers.bytecode,
+                        answers.abi,
+                        answers.key
+                    );
+                });
         });
 
     cli.command("interact")
         .description("interact with already deployed contract")
-        .requiredOption(
-            "--contract <contract address>",
-            "address of contract to interact with"
-        )
-        .requiredOption("--abi <abi paht>", "path to contract abi")
-        .requiredOption("--method <method call>", 'eg. --method "getNumber()"')
-        .option(
-            "--key <private key>",
-            "private key is needed to call state changing methods"
-        )
         .action((args) => {
-            new Interact(cli.opts().network).interact(
-                args.contract,
-                args.abi,
-                args.method,
-                args.key
-            );
+            inquirer
+                .prompt([
+                    networkQuestion,
+                    interactQuestion.getContractAddress,
+                    interactQuestion.getAbi,
+                    interactQuestion.getMethod,
+                    interactQuestion.getKey,
+                ])
+                .then((answers) => {
+                    new Interact(answers.network).interact(
+                        answers.contract,
+                        answers.abi,
+                        answers.method,
+                        answers.key
+                    );
+                });
         });
 
     cli.command("sendEth")
         .description("send ether to address")
-        .requiredOption(
-            "--to <address>",
-            "public address of account to send ether to"
-        )
-        .requiredOption("--amount <amount in ether>", "amount to send in ether")
-        .requiredOption("--key <private key>", "private key")
         .action((args) => {
-            new SendEth(cli.opts().network).sendEth(
-                args.to,
-                args.amount,
-                args.key
-            );
+            inquirer
+                .prompt([
+                    networkQuestion,
+                    sendEthQuestion.getToAddress,
+                    sendEthQuestion.getAmount,
+                    sendEthQuestion.getKey,
+                ])
+                .then((answers) => {
+                    new SendEth(answers.network).sendEth(
+                        answers.to,
+                        answers.amount,
+                        answers.key
+                    );
+                });
         });
 
     cli.parse();

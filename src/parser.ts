@@ -1,5 +1,6 @@
 import { Command, Option } from "commander";
 import inquirer from "inquirer";
+import inquirer_fuzzy_path from "inquirer-fuzzy-path";
 
 import config from "./config.js";
 
@@ -25,6 +26,10 @@ import {
 
 const cli = new Command("eth").version(config.version);
 
+inquirer.registerPrompt("fuzzypath", inquirer_fuzzy_path);
+// const ui = new inquirer.ui.BottomBar();
+// console.log(ui.log.write("ctrl+c to quit"));
+
 const parse = async () => {
     cli.command("balance")
         .description("get balance of address")
@@ -32,6 +37,7 @@ const parse = async () => {
             inquirer
                 .prompt([networkQuestion, balanceQuestion])
                 .then((answers) => {
+                    console.log();
                     new Balance(answers.network).showBalance(answers.address);
                 });
         });
@@ -48,6 +54,7 @@ const parse = async () => {
             inquirer
                 .prompt([networkQuestion, blockNumberQuestion])
                 .then((answers) => {
+                    console.log();
                     new Block(answers.network).showBlock(
                         parseInt(answers.blockNumber)
                     );
@@ -60,6 +67,7 @@ const parse = async () => {
             inquirer
                 .prompt([networkQuestion, transactionQuestion])
                 .then((answers) => {
+                    console.log();
                     new Transaction(answers.network).showTransaction(
                         answers.hash
                     );
@@ -74,6 +82,7 @@ const parse = async () => {
             inquirer
                 .prompt([networkQuestion, compileQuestion])
                 .then((answers) => {
+                    console.log();
                     new Compile(answers.network).compile(answers.src);
                 });
         });
@@ -84,11 +93,12 @@ const parse = async () => {
             inquirer
                 .prompt([
                     networkQuestion,
-                    deployQuestion.getByecode,
+                    deployQuestion.getBytecode,
                     deployQuestion.getAbi,
                     deployQuestion.getKey,
                 ])
                 .then((answers) => {
+                    console.log();
                     new Deploy(answers.network).deploy(
                         answers.bytecode,
                         answers.abi,
@@ -109,6 +119,7 @@ const parse = async () => {
                     interactQuestion.getKey,
                 ])
                 .then((answers) => {
+                    console.log();
                     new Interact(answers.network).interact(
                         answers.contract,
                         answers.abi,
@@ -129,6 +140,7 @@ const parse = async () => {
                     sendEthQuestion.getKey,
                 ])
                 .then((answers) => {
+                    console.log();
                     new SendEth(answers.network).sendEth(
                         answers.to,
                         answers.amount,

@@ -1,5 +1,6 @@
 import Command from "./Command.js";
-import { isError } from "ethers";
+
+import Logger from "../Logger.js";
 
 export default class Blocknumber extends Command {
     constructor(network: string) {
@@ -18,11 +19,11 @@ export default class Blocknumber extends Command {
 
             this.stopSpinner();
 
-            this.logger.log("block number", data);
+            Logger.log("block number", data);
         } catch (error: any) {
             this.stopSpinner(false);
 
-            this.logger.error(error);
+            Logger.error(error);
         }
     };
 }

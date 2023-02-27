@@ -1,6 +1,8 @@
 import Command from "./Command.js";
 import { ethers, TransactionLike } from "ethers";
 
+import Logger from "../Logger.js";
+
 export default class SendEth extends Command {
     constructor(network: string) {
         super(network);
@@ -36,25 +38,26 @@ export default class SendEth extends Command {
 
             this.stopSpinner();
 
-            this.logger.log("transaction", data);
+            Logger.log("transaction", data);
         } catch (error: any) {
             this.stopSpinner(false);
 
             if (ethers.isError(error, "UNCONFIGURED_NAME")) {
-                this.logger.error(error, {
+                Logger.error(error, {
                     suggestion:
                         "provided address does not seem correct. Try checking it",
                 });
             } else if (ethers.isError(error, "INVALID_ARGUMENT")) {
-                this.logger.error(error, {
-                    suggestion: "Try checking value of passed arguments like amount and private key",
+                Logger.error(error, {
+                    suggestion:
+                        "Try checking value of passed arguments like amount and private key",
                 });
             } else if (ethers.isError(error, "INSUFFICIENT_FUNDS")) {
-                this.logger.error(error, {
+                Logger.error(error, {
                     suggestion: "Your are broke :(",
                 });
             } else {
-                this.logger.error(error);
+                Logger.error(error);
             }
         }
     };

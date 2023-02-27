@@ -1,5 +1,7 @@
 import Command from "./Command.js";
 
+import Logger from "../Logger.js";
+
 export default class Block extends Command {
     constructor(network: string) {
         super(network);
@@ -13,11 +15,11 @@ export default class Block extends Command {
 
             this.stopSpinner();
 
-            this.logger.log("transaction", tx);
+            Logger.log("transaction", tx);
         } catch (error: any) {
             this.stopSpinner(false);
 
-            this.logger.error(error, {
+            Logger.error(error, {
                 suggestion: "Try checking value of passed transaction hash",
             });
         }

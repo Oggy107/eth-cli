@@ -1,6 +1,8 @@
 import Command from "./Command.js";
 import { isError } from "ethers";
 
+import Logger from "../Logger.js";
+
 export default class Block extends Command {
     constructor(network: string) {
         super(network);
@@ -14,24 +16,24 @@ export default class Block extends Command {
 
             this.stopSpinner();
 
-            this.logger.log("block", block);
+            Logger.log("block", block);
         } catch (error: any) {
             this.stopSpinner(false);
 
             if (isError(error, "INVALID_ARGUMENT")) {
                 if (error.message.includes("overflow")) {
-                    this.logger.error(error, {
+                    Logger.error(error, {
                         suggestion:
                             "provided block number is greater than blocks on blockchain. Try providing a lower block number",
                     });
                 } else {
-                    this.logger.error(error, {
+                    Logger.error(error, {
                         suggestion:
                             "provided block number does not have number data type. Make sure it is of type number",
                     });
                 }
             } else {
-                this.logger.error(error);
+                Logger.error(error);
             }
         }
     };

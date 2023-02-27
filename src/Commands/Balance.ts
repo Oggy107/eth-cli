@@ -1,6 +1,8 @@
 import Command from "./Command.js";
 import { ethers } from "ethers";
 
+import Logger from "../Logger.js";
+
 export default class Balance extends Command {
     constructor(network: string) {
         super(network);
@@ -21,17 +23,17 @@ export default class Balance extends Command {
                 eth: ethers.formatEther(balance),
             };
 
-            this.logger.log("balance", data);
+            Logger.log("balance", data);
         } catch (error: any) {
             this.stopSpinner(false);
 
             if (ethers.isError(error, "UNCONFIGURED_NAME")) {
-                this.logger.error(error, {
+                Logger.error(error, {
                     suggestion:
                         "provided address does not seem correct. Try checking it",
                 });
             } else {
-                this.logger.error(error);
+                Logger.error(error);
             }
         }
     };

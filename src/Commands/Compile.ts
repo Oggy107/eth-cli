@@ -4,8 +4,8 @@ import fs from "fs";
 
 import Command from "./Command.js";
 import { readContent, writeContent } from "../utils.js";
-
 import { compiledOutput } from "../types.js";
+import Logger from "../Logger.js";
 
 class DependencyPresentError extends Error {
     constructor() {
@@ -110,27 +110,27 @@ export default class Compile extends Command {
 
             this.stopSpinner();
 
-            this.logger.log("gas estimations", gasEstimates);
+            Logger.log("gas estimations", gasEstimates);
         } catch (error: any) {
             this.stopSpinner(false);
 
             if (error instanceof DependencyPresentError) {
-                this.logger.error(error, {
+                Logger.error(error, {
                     suggestion:
                         "Try compiling solidity source code with no import statements or dependencies",
                 });
             } else if (error instanceof CompilationError) {
-                this.logger.error(error, {
+                Logger.error(error, {
                     displayWhole: true,
                     suggestion:
                         "Try checking for syntax and other errors in passed solidity source code",
                 });
             } else if (error.code == "ENOENT") {
-                this.logger.error(error, {
+                Logger.error(error, {
                     suggestion: "Try checking path of passed sourcecode",
                 });
             } else {
-                this.logger.error(error, {
+                Logger.error(error, {
                     displayWhole: true,
                 });
             }

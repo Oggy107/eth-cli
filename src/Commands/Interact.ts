@@ -3,6 +3,8 @@ import { ethers, isError } from "ethers";
 import { nodeCommand } from "./Command.js";
 import { readContent } from "../utils.js";
 import Logger from "../Logger.js";
+import Store from "./Store.js";
+import { NoConfiguredNameError } from "../errors.js";
 
 export default class Interact extends nodeCommand {
     constructor(network: string) {
@@ -15,7 +17,7 @@ export default class Interact extends nodeCommand {
         method: string,
         key: string | null
     ): Promise<void> => {
-        this.startSpinner(`calling ${method} on contract`);
+        Interact.startSpinner(`calling ${method} on contract`);
 
         try {
             const abi = await readContent(abiPath);
@@ -24,10 +26,20 @@ export default class Interact extends nodeCommand {
                 ? new ethers.Wallet(key, this.provider)
                 : this.provider;
 
-            const contract = new ethers.Contract(_contract, abi, signer);
+            let contractAddress = _contract;
+
+            if (!_contract.startsWith("0x")) {
+                const tmp = await Store.retrieve("address", _contract);
+
+                if (tmp) {
+                    contractAddress = tmp;
+                }
+            }
+
+            const contract = new ethers.Contract(contractAddress, abi, signer);
             const resp = await eval(`contract.${method}`);
 
-            this.stopSpinner();
+            Interact.stopSpinner();
 
             const data = {
                 data: {
@@ -37,9 +49,14 @@ export default class Interact extends nodeCommand {
 
             Logger.log("method call", data);
         } catch (error: any) {
-            this.stopSpinner(false);
+            Interact.stopSpinner(false);
 
-            if (isError(error, "INVALID_ARGUMENT")) {
+            if (error instanceof NoConfiguredNameError) {
+                Logger.error(error, {
+                    suggestion:
+                        "can not resolve name to address. Try storing address first using store command",
+                });
+            } else if (isError(error, "INVALID_ARGUMENT")) {
                 Logger.error(error, {
                     suggestion:
                         "Try checking name of the passed method and it's parameters OR value of private key",

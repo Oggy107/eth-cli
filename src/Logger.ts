@@ -13,7 +13,11 @@ export default class Logger {
     static log = (_title: string, _data: any) => {
         const title = chalk.bold.yellow(_title + ":-");
 
-        const data = Logger.stringifyData(_data);
+        let data;
+
+        if (typeof _data == "string") {
+            data = Logger.stringifyData({ data: _data });
+        } else data = Logger.stringifyData(_data);
 
         console.log(`${title}\n${prettyjson.renderString(data)}`);
     };

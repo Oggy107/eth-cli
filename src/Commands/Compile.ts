@@ -7,28 +7,12 @@ import { localCommand } from "./Command.js";
 import { readContent, writeContent } from "../utils.js";
 import { compiledOutput } from "../types.js";
 import Logger from "../Logger.js";
-
-class DependencyPresentError extends Error {
-    constructor() {
-        super(
-            "Dependencies in solidity source code detected. Currently only compilation of solidity files without dependencies(without import statements) is supported"
-        );
-        this.name = "DependencyPresentError";
-    }
-}
-
-class CompilationError extends Error {
-    data: Array<{}>;
-
-    constructor(errorArray: Array<{}>) {
-        super("Compilation Error");
-        this.name = "compilationError";
-        this.data = errorArray;
-    }
-}
+import { CompilationError, DependencyPresentError } from "../errors.js";
 
 export default class Compile extends localCommand {
-    private createOrClearDirectory = async (dirName: string): Promise<void> => {
+    private static createOrClearDirectory = async (
+        dirName: string
+    ): Promise<void> => {
         if (!fs.existsSync(dirName)) {
             fs.mkdirSync(dirName);
         } else {
@@ -42,13 +26,13 @@ export default class Compile extends localCommand {
         }
     };
 
-    private isDependencyPresent = (src: string): boolean => {
+    private static isDependencyPresent = (src: string): boolean => {
         if (src.match("import")) return true;
 
         return false;
     };
 
-    compile = async (srcPath: string) => {
+    static compile = async (srcPath: string) => {
         this.startSpinner("compiling solidity");
 
         let gasEstimates = {};

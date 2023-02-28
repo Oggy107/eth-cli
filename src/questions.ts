@@ -110,3 +110,20 @@ export const sendEthQuestion = {
     } as DistinctQuestion,
     getKey,
 };
+
+export const storeQuestion = {
+    getType: {
+        message: "Enter type of data to add:",
+        name: "type",
+        type: "list",
+        choices: ["private key", "address"],
+    } as DistinctQuestion,
+    getData: {
+        message: "Enter the data:",
+        name: "data",
+    } as DistinctQuestion,
+    getName: {
+        message: "Enter the name of key or address:",
+        name: "name",
+    } as DistinctQuestion,
+};

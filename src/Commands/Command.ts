@@ -4,11 +4,12 @@ import ora, { Ora } from "ora";
 import logSymbols from "log-symbols";
 
 import config from "../config.js";
+import Store from "./Store.js";
 
 abstract class Command {
-    protected spinner: Ora = ora({ spinner: "dots5" });
+    protected static spinner: Ora = ora({ spinner: "dots5" });
 
-    protected startSpinner = (name: string): void => {
+    protected static startSpinner = (name: string): void => {
         this.spinner.text = chalk.bold.yellow(name);
         this.spinner.start();
     };
@@ -17,7 +18,7 @@ abstract class Command {
      *
      * @param success success indicator. defaults to  true
      */
-    protected stopSpinner = (success = true): void => {
+    protected static stopSpinner = (success = true): void => {
         this.spinner.stopAndPersist({
             symbol: success ? logSymbols.success : logSymbols.error,
         });

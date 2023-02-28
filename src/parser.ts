@@ -1,4 +1,4 @@
-import { Command, Option } from "commander";
+import { Command } from "commander";
 import inquirer from "inquirer";
 import inquirer_fuzzy_path from "inquirer-fuzzy-path";
 
@@ -12,6 +12,7 @@ import Compile from "./Commands/Compile.js";
 import Deploy from "./Commands/Deploy.js";
 import Interact from "./Commands/Interact.js";
 import SendEth from "./Commands/SendEth.js";
+import Store from "./Commands/Store.js";
 
 import {
     networkQuestion,
@@ -22,6 +23,7 @@ import {
     deployQuestion,
     interactQuestion,
     sendEthQuestion,
+    storeQuestion,
 } from "./questions.js";
 
 const cli = new Command("eth").version(config.version);
@@ -33,7 +35,7 @@ inquirer.registerPrompt("fuzzypath", inquirer_fuzzy_path);
 const parse = async () => {
     cli.command("balance")
         .description("get balance of address")
-        .action((args) => {
+        .action(() => {
             inquirer
                 .prompt([networkQuestion, balanceQuestion])
                 .then((answers) => {
@@ -50,7 +52,7 @@ const parse = async () => {
 
     cli.command("block")
         .description("get block data")
-        .action((args) => {
+        .action(() => {
             inquirer
                 .prompt([networkQuestion, blockNumberQuestion])
                 .then((answers) => {
@@ -63,7 +65,7 @@ const parse = async () => {
 
     cli.command("transaction")
         .description("get transaction data")
-        .action((args) => {
+        .action(() => {
             inquirer
                 .prompt([networkQuestion, transactionQuestion])
                 .then((answers) => {
@@ -78,16 +80,16 @@ const parse = async () => {
         .description(
             "compile solidity smart contract. outputs abi and object code in compiled directory. currently compilation of solidity files without libraries(importing other solidity files) is supported"
         )
-        .action((args) => {
+        .action(() => {
             inquirer.prompt([compileQuestion]).then((answers) => {
                 console.log();
-                new Compile().compile(answers.src);
+                Compile.compile(answers.src);
             });
         });
 
     cli.command("deploy")
         .description("deploy a contract")
-        .action((args) => {
+        .action(() => {
             inquirer
                 .prompt([
                     networkQuestion,
@@ -107,7 +109,7 @@ const parse = async () => {
 
     cli.command("interact")
         .description("interact with already deployed contract")
-        .action((args) => {
+        .action(() => {
             inquirer
                 .prompt([
                     networkQuestion,
@@ -129,7 +131,7 @@ const parse = async () => {
 
     cli.command("sendEth")
         .description("send ether to address")
-        .action((args) => {
+        .action(() => {
             inquirer
                 .prompt([
                     networkQuestion,
@@ -144,6 +146,21 @@ const parse = async () => {
                         answers.amount,
                         answers.key
                     );
+                });
+        });
+
+    cli.command("store")
+        .description("store addresses and keys")
+        .action(() => {
+            inquirer
+                .prompt([
+                    storeQuestion.getType,
+                    storeQuestion.getData,
+                    storeQuestion.getName,
+                ])
+                .then((answers) => {
+                    console.log();
+                    Store.store(answers.type, answers.data, answers.name);
                 });
         });
 

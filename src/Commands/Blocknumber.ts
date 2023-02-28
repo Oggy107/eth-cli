@@ -8,7 +8,7 @@ export default class Blocknumber extends nodeCommand {
     }
 
     showBlockNumber = async (): Promise<void> => {
-        this.startSpinner("fetching block number");
+        Blocknumber.startSpinner("fetching block number");
 
         try {
             const block = (await this.provider.getBlockNumber()).toString();
@@ -17,11 +17,11 @@ export default class Blocknumber extends nodeCommand {
                 latestBlock: block,
             };
 
-            this.stopSpinner();
+            Blocknumber.stopSpinner();
 
             Logger.log("block number", data);
         } catch (error: any) {
-            this.stopSpinner(false);
+            Blocknumber.stopSpinner(false);
 
             Logger.error(error);
         }

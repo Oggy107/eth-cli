@@ -2,6 +2,8 @@ import { nodeCommand } from "./Command.js";
 import { ethers, TransactionLike } from "ethers";
 
 import Logger from "../Logger.js";
+import Store from "./Store.js";
+import { NoConfiguredNameError } from "../errors.js";
 
 export default class SendEth extends nodeCommand {
     constructor(network: string) {
@@ -9,14 +11,24 @@ export default class SendEth extends nodeCommand {
     }
 
     sendEth = async (
-        to: string,
+        _to: string,
         amount: string,
         key: string
     ): Promise<void> => {
-        this.startSpinner("sending ether");
+        SendEth.startSpinner("sending ether");
 
         try {
             const wallet = new ethers.Wallet(key, this.provider);
+
+            let to = _to;
+
+            if (!_to.startsWith("0x")) {
+                const tmp = await Store.retrieve("address", _to);
+
+                if (tmp) {
+                    to = tmp;
+                }
+            }
 
             const tx: TransactionLike = {
                 value: ethers.parseEther(amount),
@@ -26,8 +38,8 @@ export default class SendEth extends nodeCommand {
 
             const txResponse = await wallet.sendTransaction(tx);
 
-            this.stopSpinner();
-            this.startSpinner("waiting for block confirmation");
+            SendEth.stopSpinner();
+            SendEth.startSpinner("waiting for block confirmation");
 
             const txReciept = await txResponse.wait(1);
 
@@ -36,13 +48,18 @@ export default class SendEth extends nodeCommand {
                 ...txReciept,
             };
 
-            this.stopSpinner();
+            SendEth.stopSpinner();
 
             Logger.log("transaction", data);
         } catch (error: any) {
-            this.stopSpinner(false);
+            SendEth.stopSpinner(false);
 
-            if (ethers.isError(error, "UNCONFIGURED_NAME")) {
+            if (error instanceof NoConfiguredNameError) {
+                Logger.error(error, {
+                    suggestion:
+                        "can not resolve name to address. Try storing address first using store command",
+                });
+            } else if (ethers.isError(error, "UNCONFIGURED_NAME")) {
                 Logger.error(error, {
                     suggestion:
                         "provided address does not seem correct. Try checking it",

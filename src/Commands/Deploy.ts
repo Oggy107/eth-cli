@@ -14,7 +14,7 @@ export default class Deploy extends nodeCommand {
         abiPath: string,
         privateKey: string
     ): Promise<void> => {
-        this.startSpinner("deploying contract");
+        Deploy.startSpinner("deploying contract");
 
         try {
             const bytecode = await readContent(bytecodePath);
@@ -29,8 +29,8 @@ export default class Deploy extends nodeCommand {
 
             const contract = await contractFactory.deploy();
 
-            this.stopSpinner();
-            this.startSpinner("waiting for block confirmation");
+            Deploy.stopSpinner();
+            Deploy.startSpinner("waiting for block confirmation");
 
             const transactionReceipt = await contract
                 .deploymentTransaction()
@@ -43,11 +43,11 @@ export default class Deploy extends nodeCommand {
                 ...transactionResponse,
             };
 
-            this.stopSpinner();
+            Deploy.stopSpinner();
 
             Logger.log("contract", contractData);
         } catch (error: any) {
-            this.stopSpinner(false);
+            Deploy.stopSpinner(false);
 
             if (isError(error, "INVALID_ARGUMENT")) {
                 Logger.error(error, {

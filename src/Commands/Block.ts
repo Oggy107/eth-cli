@@ -10,16 +10,16 @@ export default class Block extends nodeCommand {
     }
 
     showBlock = async (blockNumber: number): Promise<void> => {
-        this.startSpinner("fetching block");
+        Block.startSpinner("fetching block");
 
         try {
             const block = await this.provider.getBlock(blockNumber);
 
-            this.stopSpinner();
+            Block.stopSpinner();
 
             Logger.log("block", block);
         } catch (error: any) {
-            this.stopSpinner(false);
+            Block.stopSpinner(false);
 
             if (isError(error, "INVALID_ARGUMENT")) {
                 if (error.message.includes("overflow")) {

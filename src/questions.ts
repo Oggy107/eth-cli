@@ -39,16 +39,21 @@ const getPathQuestion = (
     } as FuzzyPathQuestionOptions;
 };
 
+const getPassword: DistinctQuestion = {
+    message: "Enter password:",
+    name: "password",
+    type: "password",
+    mask: "*",
+};
+
 const getAbi: FuzzyPathQuestionOptions = getPathQuestion(
     "Enter contract abi path:",
     "abi"
 );
 
-const getKey: DistinctQuestion = {
-    message: "Enter privatek key:",
-    type: "password",
-    mask: "*",
-    name: "key",
+const getKeyName: DistinctQuestion = {
+    message: "Enter private key name:",
+    name: "keyName",
 };
 
 export const networkQuestion: DistinctQuestion = {
@@ -83,7 +88,8 @@ export const compileQuestion: FuzzyPathQuestionOptions = getPathQuestion(
 export const deployQuestion = {
     getBytecode: getPathQuestion("Enter contract bytecode path:", "bytecode"),
     getAbi,
-    getKey,
+    getKeyName,
+    getPassword,
 };
 
 export const interactQuestion = {
@@ -92,11 +98,12 @@ export const interactQuestion = {
         name: "contract",
     } as DistinctQuestion,
     getMethod: {
-        message: "Enter method to call (format: methodName(1, 2, 3 ,...)): ",
+        message: "Enter method to call (format: methodName(1, 2, 3 ,...)):",
         name: "method",
     } as DistinctQuestion,
     getAbi,
-    getKey,
+    getKeyName,
+    getPassword,
 };
 
 export const sendEthQuestion = {
@@ -108,7 +115,8 @@ export const sendEthQuestion = {
         message: "Enter amount to send:",
         name: "amount",
     } as DistinctQuestion,
-    getKey,
+    getKeyName,
+    getPassword,
 };
 
 export const storeQuestion = {
@@ -118,9 +126,30 @@ export const storeQuestion = {
         type: "list",
         choices: ["private key", "address"],
     } as DistinctQuestion,
+    getKey: {
+        message: "Enter private key:",
+        type: "password",
+        mask: "*",
+        name: "data",
+        when: (answers) => {
+            return answers.type == "private key";
+        },
+    } as DistinctQuestion,
     getData: {
         message: "Enter the data:",
         name: "data",
+        when: (answers) => {
+            return answers.type == "address";
+        },
+    } as DistinctQuestion,
+    getPassword: {
+        message: "Enter your password",
+        name: "password",
+        type: "password",
+        mask: "*",
+        when: (answers) => {
+            return answers.type == "private key";
+        },
     } as DistinctQuestion,
     getName: {
         message: "Enter the name of key or address:",

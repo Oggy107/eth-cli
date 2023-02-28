@@ -95,14 +95,16 @@ const parse = async () => {
                     networkQuestion,
                     deployQuestion.getBytecode,
                     deployQuestion.getAbi,
-                    deployQuestion.getKey,
+                    deployQuestion.getKeyName,
+                    deployQuestion.getPassword,
                 ])
                 .then((answers) => {
                     console.log();
                     new Deploy(answers.network).deploy(
                         answers.bytecode,
                         answers.abi,
-                        answers.key
+                        answers.keyName,
+                        answers.password
                     );
                 });
         });
@@ -116,7 +118,8 @@ const parse = async () => {
                     interactQuestion.getContractAddress,
                     interactQuestion.getAbi,
                     interactQuestion.getMethod,
-                    interactQuestion.getKey,
+                    interactQuestion.getKeyName,
+                    interactQuestion.getPassword,
                 ])
                 .then((answers) => {
                     console.log();
@@ -124,7 +127,8 @@ const parse = async () => {
                         answers.contract,
                         answers.abi,
                         answers.method,
-                        answers.key
+                        answers.keyName,
+                        answers.password
                     );
                 });
         });
@@ -137,14 +141,16 @@ const parse = async () => {
                     networkQuestion,
                     sendEthQuestion.getToAddress,
                     sendEthQuestion.getAmount,
-                    sendEthQuestion.getKey,
+                    sendEthQuestion.getKeyName,
+                    sendEthQuestion.getPassword,
                 ])
                 .then((answers) => {
                     console.log();
                     new SendEth(answers.network).sendEth(
                         answers.to,
                         answers.amount,
-                        answers.key
+                        answers.keyName,
+                        answers.password
                     );
                 });
         });
@@ -156,11 +162,18 @@ const parse = async () => {
                 .prompt([
                     storeQuestion.getType,
                     storeQuestion.getData,
+                    storeQuestion.getKey,
+                    storeQuestion.getPassword,
                     storeQuestion.getName,
                 ])
                 .then((answers) => {
                     console.log();
-                    Store.store(answers.type, answers.data, answers.name);
+                    Store.store(
+                        answers.type,
+                        answers.data,
+                        answers.name,
+                        answers.password
+                    );
                 });
         });
 

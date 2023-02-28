@@ -11,13 +11,6 @@ export const writeContent = async (
     await fs.promises.writeFile(file, content, "utf-8");
 };
 
-// export const appendContent = async (
-//     file: string,
-//     content: string
-// ): Promise<void> => {
-//     await fs.promises.appendFile(file, content, "utf-8");
-// };
-
 export const createFileIfNotExists = (file: string): void => {
     if (!fs.existsSync(file)) {
         fs.closeSync(fs.openSync(file, "w"));

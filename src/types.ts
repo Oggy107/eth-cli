@@ -47,3 +47,4 @@ interface Address {
 }
 
 export type Addresses = Array<Address>;
+export type Keys = Array<Address>;

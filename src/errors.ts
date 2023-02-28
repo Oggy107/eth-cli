@@ -1,7 +1,7 @@
 export class NoConfiguredNameError extends Error {
-    constructor(message: string) {
-        super(message);
-        this.name = "No Configured Name Error";
+    constructor() {
+        super("No configured names for address found");
+        this.name = "NoConfiguredNameError";
     }
 }
 
@@ -21,5 +21,12 @@ export class CompilationError extends Error {
         super("Compilation Error");
         this.name = "compilationError";
         this.data = errorArray;
+    }
+}
+
+export class NoRegisterdKeyFound extends Error {
+    constructor() {
+        super("No key was found corresponsing to given key name");
+        this.name = "NoRegsiterdKeyFound";
     }
 }

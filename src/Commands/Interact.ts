@@ -4,7 +4,7 @@ import { nodeCommand } from "./Command.js";
 import { readContent } from "../utils.js";
 import Logger from "../Logger.js";
 import Store from "./Store.js";
-import { NoConfiguredNameError } from "../errors.js";
+import { NoRegisterdKeyFound } from "../errors.js";
 
 export default class Interact extends nodeCommand {
     constructor(network: string) {
@@ -12,31 +12,40 @@ export default class Interact extends nodeCommand {
     }
 
     interact = async (
-        _contract: string,
+        _contractAddress: string,
         abiPath: string,
         method: string,
-        key: string | null
+        privateKeyName: string,
+        password: string
     ): Promise<void> => {
         Interact.startSpinner(`calling ${method} on contract`);
 
         try {
             const abi = await readContent(abiPath);
 
-            const signer = key
-                ? new ethers.Wallet(key, this.provider)
-                : this.provider;
+            let privateKey = await Store.retrieve(
+                "private key",
+                privateKeyName
+            );
 
-            let contractAddress = _contract;
-
-            if (!_contract.startsWith("0x")) {
-                const tmp = await Store.retrieve("address", _contract);
-
-                if (tmp) {
-                    contractAddress = tmp;
-                }
+            if (ethers.isKeystoreJson(privateKey)) {
+                privateKey = (
+                    await ethers.decryptKeystoreJson(privateKey, password)
+                ).privateKey;
+            } else {
+                throw new NoRegisterdKeyFound();
             }
 
-            const contract = new ethers.Contract(contractAddress, abi, signer);
+            let contractAddress = await Store.retrieve(
+                "address",
+                _contractAddress
+            );
+
+            const contract = new ethers.Contract(
+                contractAddress,
+                abi,
+                new ethers.Wallet(privateKey, this.provider)
+            );
             const resp = await eval(`contract.${method}`);
 
             Interact.stopSpinner();
@@ -51,27 +60,44 @@ export default class Interact extends nodeCommand {
         } catch (error: any) {
             Interact.stopSpinner(false);
 
-            if (error instanceof NoConfiguredNameError) {
+            if (error instanceof NoRegisterdKeyFound) {
                 Logger.error(error, {
                     suggestion:
-                        "can not resolve name to address. Try storing address first using store command",
+                        "you must first register your private key with secure password using store command",
                 });
+                process.exit(1);
+            } else if (isError(error, "UNCONFIGURED_NAME")) {
+                Logger.error(error, {
+                    suggestion: "Try checking value of passed contract hash",
+                });
+                process.exit(1);
             } else if (isError(error, "INVALID_ARGUMENT")) {
                 Logger.error(error, {
                     suggestion:
                         "Try checking name of the passed method and it's parameters OR value of private key",
                 });
+                process.exit(1);
             } else if (isError(error, "UNSUPPORTED_OPERATION")) {
                 Logger.error(error, {
                     suggestion:
                         "Try checking datatypes and number of parameters passed to method",
                 });
+                process.exit(1);
             } else if (error.code == "ENOENT") {
                 Logger.error(error, {
                     suggestion: "Try checking path of passed abi or bytecode",
                 });
+                process.exit(1);
             } else {
-                Logger.error(error);
+                if (error.message.includes("TODO")) {
+                    Logger.error(error, {
+                        suggestion:
+                            "Try checking value of passed contract hash",
+                    });
+                } else {
+                    Logger.error(error);
+                }
+                process.exit(1);
             }
         }
     };

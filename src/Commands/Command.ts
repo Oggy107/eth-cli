@@ -4,7 +4,6 @@ import ora, { Ora } from "ora";
 import logSymbols from "log-symbols";
 
 import config from "../config.js";
-import Store from "./Store.js";
 
 abstract class Command {
     protected static spinner: Ora = ora({ spinner: "dots5" });

@@ -3,7 +3,7 @@ import { ethers, TransactionLike } from "ethers";
 
 import Logger from "../Logger.js";
 import Store from "./Store.js";
-import { NoConfiguredNameError } from "../errors.js";
+import { NoRegisterdKeyFound } from "../errors.js";
 
 export default class SendEth extends nodeCommand {
     constructor(network: string) {
@@ -13,22 +13,28 @@ export default class SendEth extends nodeCommand {
     sendEth = async (
         _to: string,
         amount: string,
-        key: string
+        privateKeyName: string,
+        password: string
     ): Promise<void> => {
         SendEth.startSpinner("sending ether");
 
         try {
-            const wallet = new ethers.Wallet(key, this.provider);
+            let privateKey = await Store.retrieve(
+                "private key",
+                privateKeyName
+            );
 
-            let to = _to;
-
-            if (!_to.startsWith("0x")) {
-                const tmp = await Store.retrieve("address", _to);
-
-                if (tmp) {
-                    to = tmp;
-                }
+            if (ethers.isKeystoreJson(privateKey)) {
+                privateKey = (
+                    await ethers.decryptKeystoreJson(privateKey, password)
+                ).privateKey;
+            } else {
+                throw new NoRegisterdKeyFound();
             }
+
+            let to = await Store.retrieve("address", _to);
+
+            const wallet = new ethers.Wallet(privateKey, this.provider);
 
             const tx: TransactionLike = {
                 value: ethers.parseEther(amount),
@@ -54,10 +60,10 @@ export default class SendEth extends nodeCommand {
         } catch (error: any) {
             SendEth.stopSpinner(false);
 
-            if (error instanceof NoConfiguredNameError) {
+            if (error instanceof NoRegisterdKeyFound) {
                 Logger.error(error, {
                     suggestion:
-                        "can not resolve name to address. Try storing address first using store command",
+                        "you must first register your private key with secure password using store command",
                 });
             } else if (ethers.isError(error, "UNCONFIGURED_NAME")) {
                 Logger.error(error, {

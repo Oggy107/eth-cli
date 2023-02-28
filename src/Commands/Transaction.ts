@@ -1,7 +1,6 @@
 import { nodeCommand } from "./Command.js";
 
 import Logger from "../Logger.js";
-import { NoConfiguredNameError } from "../errors.js";
 import Store from "./Store.js";
 
 export default class Transaction extends nodeCommand {
@@ -13,15 +12,7 @@ export default class Transaction extends nodeCommand {
         Transaction.startSpinner("fetching transaction");
 
         try {
-            let hash = _hash;
-
-            if (!_hash.startsWith("0x")) {
-                const tmp = await Store.retrieve("address", _hash);
-
-                if (tmp) {
-                    hash = tmp;
-                }
-            }
+            let hash = await Store.retrieve("address", _hash);
 
             const tx = await this.provider.getTransaction(hash);
 
@@ -31,16 +22,9 @@ export default class Transaction extends nodeCommand {
         } catch (error: any) {
             Transaction.stopSpinner(false);
 
-            if (error instanceof NoConfiguredNameError) {
-                Logger.error(error, {
-                    suggestion:
-                        "can not resolve name to address. Try storing address first using store command",
-                });
-            } else {
-                Logger.error(error, {
-                    suggestion: "Try checking value of passed transaction hash",
-                });
-            }
+            Logger.error(error, {
+                suggestion: "Try checking value of passed transaction hash",
+            });
         }
     };
 }

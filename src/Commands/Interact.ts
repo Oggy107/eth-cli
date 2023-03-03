@@ -46,14 +46,13 @@ export default class Interact extends nodeCommand {
                 abi,
                 new ethers.Wallet(privateKey, this.provider)
             );
+
             const resp = await eval(`contract.${method}`);
 
             Interact.stopSpinner();
 
             const data = {
-                data: {
-                    resp,
-                },
+                resp,
             };
 
             Logger.log("method call", data);

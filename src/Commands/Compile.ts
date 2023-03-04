@@ -83,7 +83,7 @@ export default class Compile extends localCommand {
                         bytecode
                     );
                     writeContent(
-                        path.join(outDirName, contractName + ".abi"),
+                        path.join(outDirName, contractName + ".abi.json"),
                         JSON.stringify(abi)
                     );
                 }

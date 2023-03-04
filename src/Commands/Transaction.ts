@@ -1,23 +1,28 @@
-import Command from "./Command.js";
+import { nodeCommand } from "./Command.js";
 
-export default class Block extends Command {
+import Logger from "../Logger.js";
+import Store from "./Store.js";
+
+export default class Transaction extends nodeCommand {
     constructor(network: string) {
         super(network);
     }
 
-    showTransaction = async (hash: string): Promise<void> => {
-        this.startSpinner("fetching transaction");
+    showTransaction = async (_hash: string): Promise<void> => {
+        Transaction.startSpinner("fetching transaction");
 
         try {
+            let hash = await Store.retrieve("address", _hash);
+
             const tx = await this.provider.getTransaction(hash);
 
-            this.stopSpinner();
+            Transaction.stopSpinner();
 
-            this.logger.log("transaction", tx);
+            Logger.log("transaction", tx);
         } catch (error: any) {
-            this.stopSpinner(false);
+            Transaction.stopSpinner(false);
 
-            this.logger.error(error, {
+            Logger.error(error, {
                 suggestion: "Try checking value of passed transaction hash",
             });
         }

@@ -1,37 +1,43 @@
-import Command from "./Command.js";
 import { ethers } from "ethers";
 
-export default class Balance extends Command {
+import { nodeCommand } from "./Command.js";
+import Store from "./Store.js";
+import Logger from "../Logger.js";
+import { NoConfiguredNameError } from "../errors.js";
+
+export default class Balance extends nodeCommand {
     constructor(network: string) {
         super(network);
     }
 
-    showBalance = async (address: string): Promise<void> => {
-        this.startSpinner("fetching balance");
+    showBalance = async (_address: string): Promise<void> => {
+        Balance.startSpinner("fetching balance");
 
         try {
+            let address = await Store.retrieve("address", _address);
+
             const balance = (
                 await this.provider.getBalance(address)
             ).toString();
 
-            this.stopSpinner();
+            Balance.stopSpinner();
 
             const data = {
                 wei: balance,
                 eth: ethers.formatEther(balance),
             };
 
-            this.logger.log("balance", data);
+            Logger.log("balance", data);
         } catch (error: any) {
-            this.stopSpinner(false);
+            Balance.stopSpinner(false);
 
             if (ethers.isError(error, "UNCONFIGURED_NAME")) {
-                this.logger.error(error, {
+                Logger.error(error, {
                     suggestion:
                         "provided address does not seem correct. Try checking it",
                 });
             } else {
-                this.logger.error(error);
+                Logger.error(error);
             }
         }
     };

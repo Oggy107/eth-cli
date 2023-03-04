@@ -2,36 +2,17 @@ import path from "path";
 import solc from "solc";
 import fs from "fs";
 
-import Command from "./Command.js";
+import { localCommand } from "./Command.js";
+
 import { readContent, writeContent } from "../utils.js";
-
 import { compiledOutput } from "../types.js";
+import Logger from "../Logger.js";
+import { CompilationError, DependencyPresentError } from "../errors.js";
 
-class DependencyPresentError extends Error {
-    constructor() {
-        super(
-            "Dependencies in solidity source code detected. Currently only compilation of solidity files without dependencies(without import statements) is supported"
-        );
-        this.name = "DependencyPresentError";
-    }
-}
-
-class CompilationError extends Error {
-    data: Array<{}>;
-
-    constructor(errorArray: Array<{}>) {
-        super("Compilation Error");
-        this.name = "compilationError";
-        this.data = errorArray;
-    }
-}
-
-export default class Compile extends Command {
-    constructor(network: string) {
-        super(network);
-    }
-
-    private createOrClearDirectory = async (dirName: string): Promise<void> => {
+export default class Compile extends localCommand {
+    private static createOrClearDirectory = async (
+        dirName: string
+    ): Promise<void> => {
         if (!fs.existsSync(dirName)) {
             fs.mkdirSync(dirName);
         } else {
@@ -45,13 +26,13 @@ export default class Compile extends Command {
         }
     };
 
-    private isDependencyPresent = (src: string): boolean => {
+    private static isDependencyPresent = (src: string): boolean => {
         if (src.match("import")) return true;
 
         return false;
     };
 
-    compile = async (srcPath: string) => {
+    static compile = async (srcPath: string) => {
         this.startSpinner("compiling solidity");
 
         let gasEstimates = {};
@@ -110,27 +91,27 @@ export default class Compile extends Command {
 
             this.stopSpinner();
 
-            this.logger.log("gas estimations", gasEstimates);
+            Logger.log("gas estimations", gasEstimates);
         } catch (error: any) {
             this.stopSpinner(false);
 
             if (error instanceof DependencyPresentError) {
-                this.logger.error(error, {
+                Logger.error(error, {
                     suggestion:
                         "Try compiling solidity source code with no import statements or dependencies",
                 });
             } else if (error instanceof CompilationError) {
-                this.logger.error(error, {
+                Logger.error(error, {
                     displayWhole: true,
                     suggestion:
                         "Try checking for syntax and other errors in passed solidity source code",
                 });
             } else if (error.code == "ENOENT") {
-                this.logger.error(error, {
+                Logger.error(error, {
                     suggestion: "Try checking path of passed sourcecode",
                 });
             } else {
-                this.logger.error(error, {
+                Logger.error(error, {
                     displayWhole: true,
                 });
             }

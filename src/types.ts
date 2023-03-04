@@ -39,3 +39,12 @@ export interface compiledOutput {
     };
     errors: [];
 }
+
+export type StoreTypes = "private key" | "address";
+
+interface Address {
+    [name: string]: string;
+}
+
+export type Addresses = Array<Address>;
+export type Keys = Array<Address>;

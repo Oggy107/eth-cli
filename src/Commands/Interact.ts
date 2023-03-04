@@ -1,59 +1,102 @@
 import { ethers, isError } from "ethers";
 
-import Command from "./Command.js";
+import { nodeCommand } from "./Command.js";
 import { readContent } from "../utils.js";
+import Logger from "../Logger.js";
+import Store from "./Store.js";
+import { NoRegisterdKeyFound } from "../errors.js";
 
-export default class Interact extends Command {
+export default class Interact extends nodeCommand {
     constructor(network: string) {
         super(network);
     }
 
     interact = async (
-        _contract: string,
+        _contractAddress: string,
         abiPath: string,
         method: string,
-        key: string | null
+        privateKeyName: string,
+        password: string
     ): Promise<void> => {
-        this.startSpinner(`calling ${method} on contract`);
+        Interact.startSpinner(`calling ${method} on contract`);
 
         try {
             const abi = await readContent(abiPath);
 
-            const signer = key
-                ? new ethers.Wallet(key, this.provider)
-                : this.provider;
+            let privateKey = await Store.retrieve(
+                "private key",
+                privateKeyName
+            );
 
-            const contract = new ethers.Contract(_contract, abi, signer);
+            if (ethers.isKeystoreJson(privateKey)) {
+                privateKey = (
+                    await ethers.decryptKeystoreJson(privateKey, password)
+                ).privateKey;
+            } else {
+                throw new NoRegisterdKeyFound();
+            }
+
+            let contractAddress = await Store.retrieve(
+                "address",
+                _contractAddress
+            );
+
+            const contract = new ethers.Contract(
+                contractAddress,
+                abi,
+                new ethers.Wallet(privateKey, this.provider)
+            );
+
             const resp = await eval(`contract.${method}`);
 
-            this.stopSpinner();
+            Interact.stopSpinner();
 
             const data = {
-                data: {
-                    resp,
-                },
+                resp,
             };
 
-            this.logger.log("method call", data);
+            Logger.log("method call", data);
         } catch (error: any) {
-            this.stopSpinner(false);
+            Interact.stopSpinner(false);
 
-            if (isError(error, "INVALID_ARGUMENT")) {
-                this.logger.error(error, {
+            if (error instanceof NoRegisterdKeyFound) {
+                Logger.error(error, {
+                    suggestion:
+                        "you must first register your private key with secure password using store command",
+                });
+                process.exit(1);
+            } else if (isError(error, "UNCONFIGURED_NAME")) {
+                Logger.error(error, {
+                    suggestion: "Try checking value of passed contract hash",
+                });
+                process.exit(1);
+            } else if (isError(error, "INVALID_ARGUMENT")) {
+                Logger.error(error, {
                     suggestion:
                         "Try checking name of the passed method and it's parameters OR value of private key",
                 });
+                process.exit(1);
             } else if (isError(error, "UNSUPPORTED_OPERATION")) {
-                this.logger.error(error, {
+                Logger.error(error, {
                     suggestion:
                         "Try checking datatypes and number of parameters passed to method",
                 });
+                process.exit(1);
             } else if (error.code == "ENOENT") {
-                this.logger.error(error, {
+                Logger.error(error, {
                     suggestion: "Try checking path of passed abi or bytecode",
                 });
+                process.exit(1);
             } else {
-                this.logger.error(error);
+                if (error.message.includes("TODO")) {
+                    Logger.error(error, {
+                        suggestion:
+                            "Try checking value of passed contract hash",
+                    });
+                } else {
+                    Logger.error(error);
+                }
+                process.exit(1);
             }
         }
     };

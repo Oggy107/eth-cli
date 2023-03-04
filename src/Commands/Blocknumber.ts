@@ -1,13 +1,14 @@
-import Command from "./Command.js";
-import { isError } from "ethers";
+import { nodeCommand } from "./Command.js";
 
-export default class Blocknumber extends Command {
+import Logger from "../Logger.js";
+
+export default class Blocknumber extends nodeCommand {
     constructor(network: string) {
         super(network);
     }
 
     showBlockNumber = async (): Promise<void> => {
-        this.startSpinner("fetching block number");
+        Blocknumber.startSpinner("fetching block number");
 
         try {
             const block = (await this.provider.getBlockNumber()).toString();
@@ -16,13 +17,13 @@ export default class Blocknumber extends Command {
                 latestBlock: block,
             };
 
-            this.stopSpinner();
+            Blocknumber.stopSpinner();
 
-            this.logger.log("block number", data);
+            Logger.log("block number", data);
         } catch (error: any) {
-            this.stopSpinner(false);
+            Blocknumber.stopSpinner(false);
 
-            this.logger.error(error);
+            Logger.error(error);
         }
     };
 }

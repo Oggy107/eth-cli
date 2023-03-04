@@ -1,6 +1,6 @@
 {
     "name": "eth-cli",
-    "version": "1.5.5",
+    "version": "2.5.0",
     "description": "A minimalistic CLI for interacting with ethereum mainnet and testnetworks",
     "main": "./dist/index.js",
     "type": "module",
@@ -26,6 +26,8 @@
     },
     "devDependencies": {
         "@types/figlet": "^1.5.5",
+        "@types/inquirer": "^9.0.3",
+        "@types/inquirer-fuzzy-path": "^2.3.6",
         "@types/node": "^18.14.0",
         "@types/prettyjson": "^0.0.30",
         "nodemon": "^2.0.20",
@@ -38,6 +40,8 @@
         "commander": "^10.0.0",
         "ethers": "^6.0.5",
         "figlet": "^1.5.2",
+        "inquirer": "^9.1.4",
+        "inquirer-fuzzy-path": "^2.3.0",
         "log-symbols": "^5.1.0",
         "ora": "^6.1.2",
         "prettyjson": "^1.2.5",

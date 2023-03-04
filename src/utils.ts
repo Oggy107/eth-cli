@@ -10,3 +10,15 @@ export const writeContent = async (
 ): Promise<void> => {
     await fs.promises.writeFile(file, content, "utf-8");
 };
+
+export const createFileIfNotExists = (file: string): void => {
+    if (!fs.existsSync(file)) {
+        fs.closeSync(fs.openSync(file, "w"));
+    }
+};
+
+export const createDirIfNotExists = async (dir: string): Promise<void> => {
+    if (!fs.existsSync(dir)) {
+        await fs.promises.mkdir(dir);
+    }
+};

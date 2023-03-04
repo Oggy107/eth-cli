@@ -10,13 +10,13 @@ const displayBanner = () => {
     const desc =
         "   A minimalistic CLI for interacting with ethereum mainnet and testnetworks";
 
-    const bannerTitle = chalk.blue(
+    const bannerTitle = chalk.red(
         figlet.textSync(title, {
             font: "Bloody",
         })
     );
 
-    const bannerDesc = chalk.blue(desc);
+    const bannerDesc = chalk.red(desc);
 
     const banner = "\n" + bannerTitle + "\n" + bannerDesc + "\n";
 

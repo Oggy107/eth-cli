@@ -1,4 +1,7 @@
+
 # A minimalistic CLI to interact with ethereum mainnet and testnets
+
+![logo](assets/logo.png)
 
 ## Install
 
@@ -21,99 +24,72 @@ run `eth --version` command to check if eth-cli is installed properly
 ## Usage
 
 ```
-Usage: eth [options] [command]
+Usage: eth {command name}
 
 Options:
-  -V, --version          output the version number
-  --network <type>       network to use (choices: "goerli", "mainnet", default: "goerli")
-  -h, --help             display help for command
+  -V, --version   output the version number
+  -h, --help      display help for command
 
 Commands:
-  balance [options]      get balance of address
-  blocknumber            get latest block number
-  block [options]        get block data
-  transaction [options]  get transaction data
-  compile [options]      compile solidity smart contract. outputs abi and object code in compiled directory. currently compilation of solidity files without libraries(importing     
-                         other solidity files) is supported
-  deploy [options]       deploy a contract
-  interact [options]     interact with already deployed contract
-  sendEth [options]      send ether to address
-  help [command]         display help for command
+  balance         get balance of address
+  blocknumber     get latest block number
+  block           get block data
+  transaction     get transaction data
+  compile         compile solidity smart contract. outputs abi and object code in compiled directory. currently compilation of solidity files without libraries(importing other      
+                  solidity files) is supported
+  deploy          deploy a contract
+  interact        interact with already deployed contract
+  sendEth         send ether to address
+  store           store addresses and keys
+  help [command]  display help for command
 ```
+
+## Features
+
+* ### **Minimalistic Interface**
+    Easy to use and understand command line interface
+
+* ### **Secure**
+    The eth-cli stores the encrypted private keys which can only be accessed using secure password. The address and encrypted private keys are stored at `HOME_DIRECTORY/.eth-cli/` path
+
+* ### **Usefull Commands**
+    The eth-cli provided usefull commands which can be used to retrieve data and interact with blockchain easily. User can send eth, compile, deploy and interact with contracts.
+
+* ### **Interact with any contract**
+    The eth-cli provides a command to interact with any contract deployed over the network. You just need to create, compile and deploy contract and start interacting with it using eth-cli. You can virtually do anything using eth-cli what contract is capable of doing. *note: you need contract address and abi to interact with it*
+
+* ### **Built in compiler**
+    eth-cli comes with a build in solidity compiler
+
+* ### **Pretified Output**
+    Easy to read and formated JSON output of the commands
 
 ## Networks
 
-Switch between networks by using `--network` switch before running commands  
-*note: default selected network is **goerli testnet** to switch to mainnet use `--network mainnet` switch. currently only **goerli** and **mainet** are supported*
+Option to choose between networks pops before every command in ran.
+*note: default selected network is **goerli testnet** to switch to mainnet use arrow keys to select **mainnet**. currently only **goerli** and **mainet** are supported*
 
 ## Getting help
 
-* To get all available commands and their usage
+* To get all available commands and their description
     ```
     eth [--help | -h]
     ```
 
-* To get help with specific command and display its options
-    ```
-    eth help {command name}
-    ```
-    or
-    ```
-    eth {command name} {--help | -h}
-    ```
+## Using Commands
 
-## Available Commands
+Run a command using `eth {command}` syntax. List all the available commands using `eth --help | -h` 
+After writing a command to use press enter and answer the followup questions
 
-* Get balance of address
-    ```
-    eth [--network {network type}] balance --address {public address of account to fetch balance of}
-    ```
-
-* Send ether to address
-    ```
-    eth [--network {network type}] sendEth --to {address to which send ether to} --amount {amount of ether to send} --key {private key to sign transaction}
-    ```
-    *note: amount in `--value` switch is to provider in **eth (not in wei)***
-
-* Get latest blocknumber of selected network
-    ```
-    eth [--network {network type}] blocknumber
-    ```
-
-* Get data of a block through block number
-    ```
-    eth [--network {network types}] block --number {block number to fetch data of}
-    ```
-
-* Compile solidity code
-    ```
-    eth compile --src {path to solidity source code}
-    ```
-    *note: currently compilation of solidity files without libraries(importing other solidity files) is supported*  
-
-    eth-cli will create a new folder in current directory named **compiled** which will contain compiled solidity contract bytecode and also the contract abi
-
-* Deploy smart contract on selected network
-    ```
-    eth [--network {network type}] deploy --bytecode {path to contract bytecode} --abi {path to contract abi} --key {private key for signing transaction}
-    ```
-
-* Interact with already deployed smart contracts
-    ```
-    eth [--network {network type}] interact --contract {contract address to interact with} --abi {path to contract abi} --method {method call on contract. eg. getNumber()} [--key {private key}]
-    ```
-    private key is not neccessary for calling view or pure methods because they does not cost gas but you need to supply the private key if you want to call a state changing method on the chain
-
-* Get Transaction data from selected network
-    ```
-    eth transaction --hash {transaction hash}
-    ```
+**Note:**
+`eth store` command can be used to store pirvate keys and addresses such as public address, contract address, transaction hash, block hash, etc in key value pairs.
+The key can be used later in questions to make things easy. Storing private keys need a password and you need to supply password everytime you use your private key
 
 ## Examples
 
 * Get balance of address
     ```powershell
-    eth balance --address 0xAE5B7751815d0E4c7a22Ed02A9e47f9B6614A492
+    eth balance
     ```
     output
 
@@ -121,50 +97,30 @@ Switch between networks by using `--network` switch before running commands
 
 ---
 
-* Get latest block number from ethereum mainnet
+* Storing address or private keys
     ```
-    eth --network mainnet blocknumber
+    eth store
     ```
     output
 
-    ![blocknumber](assets/blocknumber.png)
+    ![store](assets/storing.png)
 
 ---
 
-* Deploying a smart contract on goerli testnet
+* Sending ether (using stored address)
     ```
-    eth deploy --bytecode compiled/SimpleStorage.sol.obj --abi compiled/SimpleStorage.sol.abi --key {your private key}
+    eth sendEth
+    ```
+    output
+
+    ![sendEth](assets/sendEth.png)
+
+---
+
+* Deploying a smart contract on goerli testnet (using stored private key)
+    ```
+    eth deploy
     ```
     output
 
     ![deploy](assets/deploy.png)
-
----
-
-* Compiling solidity sourcecode
-    ```
-    eth compile --src contract/SimpleStorage.sol
-    ```
-    output
-
-    ![compiling](assets/compiling.png)
-
-# Dev section
-
-## TODO
-
-### commands
-- [x] get balance
-- [x] get block number
-- [x] add compiler
-- [x] get block data from block number 
-- [x] get transaction data from transaction hash 
-- [x] deploy contract
-- [x] interact with deployed contract
-- [x] add ability to send ether
-
-### features
-- [x] add loading indicators or spinners
-- [x] beautify output 
-- [x] add logger 
-- [x] improve error handling 

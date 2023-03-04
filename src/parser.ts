@@ -26,7 +26,7 @@ import {
     storeQuestion,
 } from "./questions.js";
 
-const cli = new Command("eth").version(config.version);
+const cli = new Command("eth").version(config.version).usage("{command name}");
 
 inquirer.registerPrompt("fuzzypath", inquirer_fuzzy_path);
 // const ui = new inquirer.ui.BottomBar();
